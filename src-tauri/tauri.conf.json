@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "life360-desktop",
+        "title": "Life360 Desktop",
         "width": 800,
         "height": 600
       }
