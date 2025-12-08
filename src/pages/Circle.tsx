@@ -58,13 +58,13 @@ const Circle = () => {
   }, []);
 
   useEffect(() => {
-    if (circle) {
-      setMapViewport({
-        latitude: parseFloat(circle?.members?.[0].location.latitude ?? "0"),
-        longitude: parseFloat(circle?.members?.[0].location.longitude ?? "0"),
-        zoom: 20,
-      });
-    }
+    // if (circle) {
+    //   setMapViewport({
+    //     latitude: parseFloat(circle?.members?.[0].location.latitude ?? "0"),
+    //     longitude: parseFloat(circle?.members?.[0].location.longitude ?? "0"),
+    //     zoom: 20,
+    //   });
+    // }
   }, [circle]);
 
   return (
@@ -125,12 +125,6 @@ const Circle = () => {
 
                       <p>{member.location.battery}%</p>
                     </div>
-                    {member.location.speed > 0 && (
-                      <div className="flex items-center gap-2 w-15">
-                        <Gauge className="text-primary size-4" />
-                        <p>{member.location.speed.toFixed(2)}</p>
-                      </div>
-                    )}
                     <div className="flex items-center gap-2">
                       <MapPin className="text-primary size-4" />
                       <Tooltip>
@@ -146,6 +140,12 @@ const Circle = () => {
                         </TooltipContent>
                       </Tooltip>
                     </div>
+                    {member.location.speed > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Gauge className="text-primary size-4" />
+                        <p>{(member.location.speed * 2.25).toFixed(2)} mph</p>
+                      </div>
+                    )}
                   </div>
                 </ItemContent>
               </Item>
@@ -156,7 +156,9 @@ const Circle = () => {
           {...mapViewport}
           onMove={(evt) => setMapViewport(evt.viewState)}
           style={{ width: "100%", borderRadius: 16, flexGrow: 1 }}
-          mapStyle="https://api.maptiler.com/maps/streets/style.json?key=acfVIzvDo5x7AUbxTTBX"
+          mapStyle={`https://api.maptiler.com/maps/streets/style.json?key=${
+            import.meta.env.VITE_MAP_TILER_KEY
+          }`}
         >
           {circle?.members?.map((member, index) => (
             <Marker
