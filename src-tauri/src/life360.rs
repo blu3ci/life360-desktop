@@ -1,12 +1,12 @@
 pub mod circles;
-pub mod member;
 pub mod common_types;
+pub mod member;
 
-use wreq::Client;
 use wreq::header::{self, HeaderValue};
+use wreq::Client;
 use wreq_util::Emulation;
 
-use circles::{Circles, Circle};
+use circles::{Circle, Circles};
 
 static BASE_URL: &str = "https://api-cloudfront.life360.com/v3";
 
@@ -30,12 +30,24 @@ impl Life360 {
     }
 
     pub async fn get_circles(&self) -> wreq::Result<Circles> {
-        let req = self.client.get(format!("{BASE_URL}/circles")).send().await?.json::<Circles>().await?;
+        let req = self
+            .client
+            .get(format!("{BASE_URL}/circles"))
+            .send()
+            .await?
+            .json::<Circles>()
+            .await?;
         Ok(req)
     }
 
-    pub async fn get_circle_details(&self, circle: &Circle) -> wreq::Result<Circle> {
-        let req = self.client.get(format!("{BASE_URL}/circles/{}", circle.id())).send().await?.json::<Circle>().await?;
+    pub async fn get_circle_details(&self, circle_id: &str) -> wreq::Result<Circle> {
+        let req = self
+            .client
+            .get(format!("{BASE_URL}/circles/{}", circle_id))
+            .send()
+            .await?
+            .json::<Circle>()
+            .await?;
         Ok(req)
     }
 }

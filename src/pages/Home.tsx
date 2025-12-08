@@ -1,30 +1,20 @@
+import CircleCard from "@/components/circle-card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { invoke } from "@tauri-apps/api/core";
 import { AlertCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-
-// interface Circle {
-//   name: String;
-// }
-
-// const circles: Circle[] = [
-//   {
-//     name: "Madadi Family",
-//   },
-//   {
-//     name: "WHAT THE HECK",
-//   },
-// ];
+import { Link, useNavigate } from "react-router";
 
 const Home = () => {
-  const [circles, setCircles] = useState<string[]>([]);
+  const navigate = useNavigate();
+  const [circles, setCircles] = useState<Circles | null>(null);
   const [error, setError] = useState<string | null>();
 
   useEffect(() => {
     invoke("get_circles")
-      .then((circles) => setCircles(circles as string[]))
+      .then((circles) => setCircles(circles as Circles))
       .catch((err) => setError(err));
   }, []);
 
@@ -43,20 +33,10 @@ const Home = () => {
       )}
 
       <div className="flex flex-wrap sm:flex-row gap-4">
-        {circles.map((circle, index) => (
-          <Card  onClick={() => alert(circle)} className="h-50 w-full sm:w-auto sm:aspect-square overflow-clip hover:outline-4 outline-primary transition-all duration-75" key={index}>
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold truncate">
-                {circle}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center grow">
-              <Avatar className="h-full w-auto aspect-square text-4xl">
-                <AvatarFallback className="bg-primary capitalize">{circle.substring(0, 2)}</AvatarFallback>
-              </Avatar>
-            </CardContent>
-          </Card>
-        ))}
+        {circles &&
+          circles.circles.map((circle) => (
+            <CircleCard circle={circle} key={circle.id} onClick={() => navigate(`/circle/${circle.id}`)} />
+          ))}
       </div>
     </div>
   );

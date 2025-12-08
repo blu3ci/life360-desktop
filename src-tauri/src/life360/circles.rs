@@ -3,11 +3,13 @@ use super::member::Member;
 type Members = Option<Vec<Member>>;
 
 #[allow(non_snake_case)]
-#[derive(serde::Deserialize, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct Circle {
     id: String,
+    color: String,
     name: String,
     memberCount: String,
+    createdAt: String,
     members: Members,
 }
 
@@ -25,7 +27,7 @@ impl Circle {
     }
 }
 
-#[derive(serde::Deserialize, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct Circles {
     circles: Vec<Circle>,
 }

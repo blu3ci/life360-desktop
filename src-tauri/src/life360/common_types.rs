@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-#[derive(serde::Deserialize, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct Location {
     latitude: String,
     longitude: String,
@@ -9,4 +9,6 @@ pub struct Location {
     address2: String,
     speed: f32,
     isDriving: String,
+    battery: String,
+    charge: String,
 }

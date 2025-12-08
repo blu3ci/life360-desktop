@@ -17,7 +17,7 @@ pub fn run() {
                 .as_str(),
         ))
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![commands::get_circles])
+        .invoke_handler(tauri::generate_handler![commands::get_circles, commands::get_circle_details])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
