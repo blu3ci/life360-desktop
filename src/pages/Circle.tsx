@@ -1,55 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  Battery,
-  BatteryCharging,
-  Gauge,
-  MapPin,
-  RefreshCw,
-  UsersRound,
-} from "lucide-react";
+import { ArrowLeft, Radius, RefreshCw, UsersRound } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemFooter,
-  ItemHeader,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/ui/item";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
-
-import Map, { Marker, useMap } from "react-map-gl/maplibre";
+import Map, { MapRef, Marker, NavigationControl } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-
-interface Viewport {
-  latitude: number;
-  longitude: number;
-  zoom?: number;
-}
+import PersonItem from "@/components/person-item";
+import PlaceIndicator from "@/components/place-indicator";
 
 const Circle = () => {
   let params = useParams();
+  let mapRef = useRef<MapRef>(null);
   const navigate = useNavigate();
   const [circle, setCircle] = useState<Circle | null>(null);
-  const [mapViewport, setMapViewport] = useState<Viewport>({
-    latitude: 0,
-    longitude: 0,
-  });
+  const [places, setPlaces] = useState<Places | null>(null);
 
   const refresh = () => {
     invoke("get_circle_details", { circleId: params.circleId }).then((circle) =>
       setCircle(circle as Circle)
+    );
+
+    invoke("get_places", { circleId: params.circleId }).then((places) =>
+      setPlaces(places as Places)
     );
   };
 
@@ -102,63 +76,34 @@ const Circle = () => {
           </CardHeader>
           <CardContent className="space-y-2">
             {circle?.members?.map((member, index) => (
-              <Item variant={"outline"} size={"sm"} key={index}>
-                <ItemMedia>
-                  <Avatar>
-                    <AvatarImage src={member.avatar} />
-                    <AvatarFallback className="bg-primary">
-                      {member.firstName.substring(0, 1)}
-                    </AvatarFallback>
-                  </Avatar>
-                </ItemMedia>
-                <ItemContent>
-                  <ItemTitle>
-                    {member.firstName} {member.lastName}
-                  </ItemTitle>
-                  <div className="flex gap-2 flex-wrap">
-                    <div className="flex items-center gap-2 w-15">
-                      {member.location.charge === "0" ? (
-                        <Battery className="text-green-400 size-4" />
-                      ) : (
-                        <BatteryCharging className="text-green-400 size-4" />
-                      )}
-
-                      <p>{member.location.battery}%</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="text-primary size-4" />
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <p>
-                            {member.location.name
-                              ? member.location.name
-                              : `${member.location.address1}, ${member.location.address2}`}
-                          </p>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {`${member.location.address1}, ${member.location.address2}`}
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    {member.location.speed > 0 && (
-                      <div className="flex items-center gap-2">
-                        <Gauge className="text-primary size-4" />
-                        <p>{(member.location.speed * 2.25).toFixed(2)} mph</p>
-                      </div>
-                    )}
-                  </div>
-                </ItemContent>
-              </Item>
+              <PersonItem
+                member={member}
+                key={index}
+                onClick={() =>
+                  // setMapViewport({
+                  //   latitude: parseFloat(member.location.latitude),
+                  //   longitude: parseFloat(member.location.longitude),
+                  //   zoom: 100,
+                  // })
+                  mapRef.current?.flyTo({
+                    center: [
+                      parseFloat(member.location.longitude),
+                      parseFloat(member.location.latitude),
+                    ],
+                    duration: 1000,
+                    zoom: 20,
+                  })
+                }
+              />
             ))}
           </CardContent>
         </Card>
         <Map
-          {...mapViewport}
-          onMove={(evt) => setMapViewport(evt.viewState)}
           style={{ width: "100%", borderRadius: 16, flexGrow: 1 }}
           mapStyle={`https://api.maptiler.com/maps/streets/style.json?key=${
             import.meta.env.VITE_MAP_TILER_KEY
           }`}
+          ref={mapRef}
         >
           {circle?.members?.map((member, index) => (
             <Marker
@@ -166,6 +111,7 @@ const Circle = () => {
               latitude={parseFloat(member.location.latitude)}
               key={index}
               anchor="bottom"
+              style={{ zIndex: 10 }}
             >
               <Avatar className="outline-3 outline-white size-12">
                 <AvatarImage src={member.avatar} />
@@ -175,6 +121,8 @@ const Circle = () => {
               </Avatar>
             </Marker>
           ))}
+          {places && <PlaceIndicator places={places} />}
+          <NavigationControl />
         </Map>
       </div>
     </div>

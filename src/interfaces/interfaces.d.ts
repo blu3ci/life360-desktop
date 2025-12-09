@@ -29,3 +29,15 @@ interface Location {
   battery: string;
   charge: string;
 }
+
+interface Places {
+    places: Place[],
+}
+
+interface Place {
+    id: string,
+    name: string,
+    longitude: number,
+    latitude: number,
+    radius: number,
+}

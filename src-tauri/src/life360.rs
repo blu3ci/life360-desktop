@@ -8,6 +8,8 @@ use wreq_util::Emulation;
 
 use circles::{Circle, Circles};
 
+use crate::life360::common_types::Places;
+
 static BASE_URL: &str = "https://api-cloudfront.life360.com/v3";
 
 pub struct Life360 {
@@ -48,6 +50,17 @@ impl Life360 {
             .await?
             .json::<Circle>()
             .await?;
-        Ok(req)
+        Ok(req)   
+    }
+
+    pub async fn get_places(&self, circle_id: &str) -> wreq::Result<Places> {
+        let req = self
+            .client
+            .get(format!("{BASE_URL}/circles/{}/allplaces", circle_id))
+            .send()
+            .await?
+            .json::<Places>()
+            .await?;
+        Ok(req)   
     }
 }

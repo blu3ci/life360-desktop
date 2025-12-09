@@ -12,3 +12,17 @@ pub struct Location {
     battery: String,
     charge: String,
 }
+
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
+pub struct Places {
+    places: Vec<Place>,
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
+pub struct Place {
+    id: String,
+    name: String,
+    longitude: f64,
+    latitude: f64,
+    radius: f64,
+}
